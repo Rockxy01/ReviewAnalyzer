@@ -1,1 +1,8 @@
+requests
+beautifulsoup4
+pandas
+fake-useragent
+selenium
+textblob
+Flask
 
