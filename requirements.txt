@@ -5,4 +5,4 @@ fake-useragent
 selenium
 textblob
 Flask
-
+gunicorn
