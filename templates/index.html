@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Review Analyzer</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .review-card {
+            margin-bottom: 20px;
+        }
+        .error-message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Amazon Review Analyzer</h2>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Enter Product URL</h5>
+                <form id="urlForm">
+                    <div class="form-group">
+                        <label for="product_url">Product URL</label>
+                        <input type="url" class="form-control" id="product_url" placeholder="Enter Amazon product URL" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Analyze Reviews</button>
+                </form>
+                <div id="error-message" class="error-message mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="mt-5" style="display: none;">
+            <div class="text-center">
+                <h3 id="product-name"></h3>
+                <img id="product-image" src="" alt="Product Image" class="img-fluid" style="max-width: 300px;">
+                <h4 class="mt-3">Summary</h4>
+                <p id="paragraph-summary"></p>
+            </div>
+
+            <h4>Review List Summary</h4>
+            <ul id="review-list" class="list-group mt-3">
+                <!-- Dynamic reviews will be appended here -->
+            </ul>
+
+            <div id="sentiment-summary" class="mt-4">
+                <h5>Sentiment Analysis</h5>
+                <p id="sentiment-description"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#urlForm').on('submit', function (event) {
+                event.preventDefault();
+                $('#results').hide();
+                $('#error-message').text('');
+                const productUrl = $('#product_url').val();
+
+                // Perform the AJAX request to analyze reviews
+                $.ajax({
+                    url: '/analyze',
+                    method: 'POST',
+                    data: { product_url: productUrl },
+                    success: function (response) {
+                        if (response.success) {
+                            // Update product name
+                            $('#product-name').text(response.product_name); // Use product_name directly from response
+
+                            // Update product image
+                            $('#product-image').attr('src', response.image_url);
+
+                            // Update review list summary
+                            $('#review-list').empty();
+                            response.reviews.forEach(function (review) {
+                                $('#review-list').append(`
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between">
+                                            <span><strong>Rating:</strong> ${review.Rating}</span>
+                                            <span><strong>Sentiment:</strong> ${review.Sentiment >= 0 ? 'Positive' : 'Negative'}</span>
+                                        </div>
+                                        <p><strong>Review:</strong> ${review.Review}</p>
+                                    </li>
+                                `);
+                            });
+
+                            // Update paragraph summary
+                            $('#paragraph-summary').text(response.summary);
+
+                            // Update sentiment summary
+                            let sentimentDescription = 'Sentiment: Neutral';
+                            if (response.sentiment > 0) {
+                                sentimentDescription = 'Sentiment: Positive';
+                            } else if (response.sentiment < 0) {
+                                sentimentDescription = 'Sentiment: Negative';
+                            }
+                            $('#sentiment-description').text(sentimentDescription);
+
+                            // Show results
+                            $('#results').show();
+                        } else {
+                            $('#error-message').text('Error: ' + response.error);
+                        }
+                    },
+                    error: function (error) {
+                        $('#error-message').text('An error occurred while processing the request.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
