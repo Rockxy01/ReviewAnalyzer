@@ -235,7 +235,7 @@ def analyze_sentiment(reviews):
 
 # Routes
 @app.route('/')
-def index():
+def home():
     return render_template('index.html')
 
 @app.route('/analyze', methods=['POST'])
@@ -271,7 +271,7 @@ def analyze_reviews():
             'reviews': review_summary,
             'sentiment': sentiment,
             'summary': summary,
-            'image_url': image_url
+            'image_url': image_url,
         })
     
     except Exception as e:
