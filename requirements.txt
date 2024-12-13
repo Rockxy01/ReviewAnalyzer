@@ -6,3 +6,7 @@ selenium
 textblob
 Flask
 gunicorn
+webdriver_manager
+Pillow
+chromedriver
+chromium
